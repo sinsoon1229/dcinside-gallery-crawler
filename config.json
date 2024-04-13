@@ -1,0 +1,28 @@
+{
+    "gallery_id": "furry",
+    "start_from": 2179460,
+
+    "save_dir": "D:/suin_gallery",
+
+    "update_interval_second": 0.25,
+    "retry_interval_second": 3,
+
+    "essential_header": {
+        "Referer": "https://gall.dcinside.com/",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    },
+    "additional_video_iframe_header": {
+        "ReferrerPolicy": "unsafe-url",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        "Sec-Fetch-Dest": "iframe",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin"
+    },
+    "additional_video_header": {
+        "Aceept": "*/*",
+        "Aceept-Encoding": "identity;q=1, *;q=0",
+        "Range": "bytes=0-",
+        "Sec-Fetch-Dest": "video"
+    }
+}
