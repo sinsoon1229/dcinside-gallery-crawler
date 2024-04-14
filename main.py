@@ -50,7 +50,7 @@ async def http_get(url: str, headers: dict[str, str], *, until_ok=True) -> bytes
                         return await response.read()
                     elif response.status < 500:
                         response.raise_for_status()
-            except (aiohttp.ClientResponseError, aiohttp.ClientConnectionError):
+            except aiohttp.ClientConnectionError:
                 if not until_ok:
                     raise
 
