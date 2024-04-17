@@ -7,19 +7,20 @@ import subprocess
 import time
 
 # Import pip modules
-try:
-    import aiohttp
-    import aiofiles
-    from bs4 import BeautifulSoup
-except ImportError:
+import importlib.util
+
+if importlib.util.find_spec('aiohttp') is None or \
+   importlib.util.find_spec('aiofiles') is None or \
+   importlib.util.find_spec('bs4') is None:
     print('======================================================================')
     print('Module import error raised, installing required modules.')
     print('======================================================================')
     subprocess.run(['pip', 'install', '-r', './requirements.txt'])
     print('======================================================================')
-    print('Required modules has been installed. Please run the program again.')
-    print('======================================================================')
-    exit(1)
+
+import aiohttp
+import aiofiles
+from bs4 import BeautifulSoup
 
 # Set core variables with config values
 with open('./config.json', 'r') as f:
