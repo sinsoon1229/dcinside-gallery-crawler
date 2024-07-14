@@ -9,7 +9,7 @@ import time
 # Import pip modules
 import importlib.util
 
-if importlib.util.find_spec('aiohttp') is None or \
+if importlib.util.find_spec('httpx') is None or \
    importlib.util.find_spec('aiofiles') is None or \
    importlib.util.find_spec('bs4') is None:
     print('======================================================================')
@@ -18,9 +18,9 @@ if importlib.util.find_spec('aiohttp') is None or \
     subprocess.run(['pip', 'install', '-r', './requirements.txt'])
     print('======================================================================')
 
-import aiohttp
 import aiofiles
 from bs4 import BeautifulSoup
+import httpx
 
 # Set core variables with config values
 with open('./config.json', 'r') as f:
@@ -43,15 +43,17 @@ def log_print(log_type: str, message: str):
     print(f'{log_type:<8} | {datetime.now():%Y-%m-%d %X}: {message}')
 
 async def http_get(url: str, headers: dict[str, str], *, until_ok=True) -> bytes:
-    async with aiohttp.ClientSession() as session:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         while True:
             try:
-                async with session.get(url, headers=headers) as response:
-                    if response.ok:
-                        return await response.read()
-                    elif response.status < 500:
-                        response.raise_for_status()
-            except aiohttp.ClientConnectionError:
+                response = await client.get(url, headers=headers)
+                if response.status_code < 300:
+                    return await response.aread()
+                elif response.status_code < 500:
+                    response.raise_for_status()
+            except httpx.HTTPStatusError:
+                raise
+            except:
                 if not until_ok:
                     raise
 
@@ -80,7 +82,7 @@ async def crawl_article(article_number: int):
     try:
         response = await http_get(f'{GALLERY_URL}/{article_number}', ESSENTIAL_HEADERS)
         article = BeautifulSoup(response.decode(), 'html.parser')
-    except aiohttp.ClientResponseError:
+    except:
         log_print('FAIL', f'Failed to get article {article_number}')
         return
 
@@ -139,7 +141,7 @@ async def crawl_article(article_number: int):
 
         try:
             response = await http_get(image_url, ESSENTIAL_HEADERS)
-        except (aiohttp.ClientResponseError, FileNotFoundError):
+        except:
             log_print('WARNING', f'Failed to get image\n\tAt article {article_number}, image {i}')
             continue
 
@@ -158,7 +160,7 @@ async def crawl_article(article_number: int):
 
         try:
             response = await http_get(video_iframe_url, VIDEO_IFRAME_HEADERS)
-        except aiohttp.ClientResponseError:
+        except:
             log_print('WARNING', f'Failed to get video\n\tAt article {article_number}, video {i}')
             continue
 
@@ -176,7 +178,7 @@ async def crawl_article(article_number: int):
 
         try:
             response = await http_get(video_url, VIDEO_HEADERS)
-        except aiohttp.ClientResponseError:
+        except:
             log_print('WARNING', f'Failed to get video\n\tAt article {article_number}, video {i}')
             continue
 
